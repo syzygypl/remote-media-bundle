@@ -1,0 +1,83 @@
+parameters:
+    ars_thanea.remote_media.media_handler.uploader.class: ArsThanea\RemoteMediaBundle\MediaHandler\S3MediaUploader
+    ars_thanea.remote_media.imagine.cache.resolver.redis_cache.class: Liip\ImagineBundle\Imagine\Cache\Resolver\CacheResolver
+    ars_thanea.remote_media.imagine.data_loader.chained_data_loader.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\DataLoader\ChainedDataLoader
+    ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\PrefixResolver
+    ars_thanea.remote_media.url_service.class: ArsThanea\RemoteMediaBundle\Service\UrlService
+    ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class: Liip\ImagineBundle\Imagine\Cache\Resolver\AwsS3Resolver
+
+    liip_imagine.cache.manager.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
+
+    # override media bundle:
+    liip_imagine.cache.resolver.web_path.class: Liip\ImagineBundle\Imagine\Cache\Resolver\WebPathResolver
+    liip_imagine.controller.class: Liip\ImagineBundle\Controller\ImagineController
+
+services:
+
+    ars_thanea_remote_media.twig_extension.media_url_twig_extension:
+        class: ArsThanea\RemoteMediaBundle\TwigExtension\MediaUrlTwigExtension
+        arguments: [ '@ars_thanea.remote_media.url_service' ]
+        tags:
+            - { name: twig.extension }
+
+    ars_thanea.remote_media.url_service:
+        class: '%ars_thanea.remote_media.url_service.class%'
+        arguments: [ "%remote_media.cdn.media_url%" ]
+
+    ars_thanea.remote_media.amazon_s3:
+        class: Aws\S3\S3Client
+        public: false
+        factory_class: Aws\S3\S3Client
+        factory_method: factory
+        arguments:
+            -
+                credentials:
+                    key: "%remote_media.cdn.s3.access_key%"
+                    secret: "%remote_media.cdn.s3.access_secret%"
+                region: "%remote_media.cdn.s3.region%"
+                version: "2006-03-01"
+
+    ars_thanea.remote_media.imagine.cache.resolver.amazon_s3:
+        public: false
+        class: '%ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class%'
+        calls:
+            - [ "setObjectUrlOption", [ "https", true ] ]
+        arguments:
+            - "@ars_thanea.remote_media.amazon_s3"
+            - "%remote_media.cdn.s3.bucket%"
+            - "public-read"
+
+    ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver:
+        public: false
+        class: "%ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver.class%"
+        arguments:
+          - '@ars_thanea.remote_media.imagine.cache.resolver.amazon_s3'
+          - "%remote_media.cdn.cache_prefix%"
+          - "%remote_media.cdn.media_url%"
+        tags:
+            - { name: 'liip_imagine.cache.resolver', resolver: 'remote_media' }
+
+    ars_thanea.remote_media.imagine.data.loader.stream.s3:
+        class: "%liip_imagine.binary.loader.stream.class%"
+        arguments:
+            - "https://s3-%remote_media.cdn.s3.region%.amazonaws.com/%remote_media.cdn.s3.bucket%/"
+
+    ars_thanea.remote_media.imagine.data.loader.stream.cdn:
+        class: "%liip_imagine.binary.loader.stream.class%"
+        arguments:
+            - "%remote_media.cdn.media_url%/"
+
+    ars_thanea.remote_media.imagine.data_loader.chained_data_loader:
+        class: "%ars_thanea.remote_media.imagine.data_loader.chained_data_loader.class%"
+        calls:
+            - [ 'addLoader', [ '@ars_thanea.remote_media.imagine.data.loader.stream.s3' ] ]
+            - [ 'addLoader', [ '@ars_thanea.remote_media.imagine.data.loader.stream.cdn' ] ]
+        tags:
+            - { name: 'liip_imagine.binary.loader', loader: 'remote_media' }
+
+    ars_thanea.remote_media.media_handler.uploader:
+        class: '%ars_thanea.remote_media.media_handler.uploader.class%'
+        arguments:
+          - '@ars_thanea.remote_media.amazon_s3'
+          - "%remote_media.cdn.s3.bucket%"
+          - "%remote_media.cdn.s3.region%"

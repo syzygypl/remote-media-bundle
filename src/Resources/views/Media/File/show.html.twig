@@ -1,0 +1,20 @@
+{% extends '@KunstmaanMedia/Media/show.html.twig' %}
+
+{% block extraactions %}
+    <a href="{{ media_url(media.url) }}" class="btn btn-primary btn--raise-on-hover">
+        {{ 'media.media.download.action'|trans }}
+    </a>
+{% endblock %}
+
+{% block preview %}{% endblock %}
+
+{% block mediainfo %}
+    {{ parent() }}
+    <dt>
+        {{ 'media.media.mediainfo.downloadlink'|trans }}:
+    </dt>
+    <dd>
+        <a href="{{ media_url(media.url) }}" target="_blank">{{ media_url(media.url) }}
+        </a>
+    </dd>
+{% endblock %}

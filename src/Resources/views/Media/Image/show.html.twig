@@ -1,0 +1,13 @@
+{% extends '@RemoteMedia/Media/File/show.html.twig' %}
+
+{% block preview %}
+    {% set imageurl = handler.getImageUrl(media, app.request.basePath) %}
+    {% if imageurl is not empty and media.location == 'local' %}
+        {% if imageurl|lower|split('.')|last == 'svg' or 'image/svg' in media.contentType %}
+            {% set imageurl = imageurl %}
+        {% else %}
+            {% set imageurl = imageurl | imagine_filter('media_detail_thumbnail') %}
+        {% endif %}
+    {% endif %}
+    <img id="editimage" class="img-thumbnail" src="{{ imageurl }}" alt="{{ media.name }}">
+{% endblock %}
