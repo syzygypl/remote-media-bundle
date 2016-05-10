@@ -47,6 +47,8 @@ class S3MediaUploader
             'Key'           => ltrim($targetPath, '/'),
             'Body'          => $fd,
             'ContentType'   => $media->getContentType(),
+            'CacheControl'  => 'public, max-age=283824000',
+            'Expires'       => gmdate('D, d M Y H:i:s T', strtotime('+9 years')),
         ]);
 
         fclose($fd);
