@@ -56,14 +56,19 @@ class PrefixResolver implements ResolverInterface
 
     public function remove(array $paths, array $filters)
     {
-        $this->resolver->remove(array_map([$this, 'rewritePath'], $paths), $filters);
+        $paths = array_map(function ($path) {
+            return $this->rewritePath($path);
+        }, $paths);
+
+        $this->resolver->remove($paths, $filters);
     }
 
     private function rewritePath($path)
     {
         $path = parse_url($path, PHP_URL_PATH);
+        $path = ltrim($path, '/');
 
-        return $this->prefix . ltrim($path, '/');
+        return $this->prefix . $path;
     }
 
     private function rewriteUrl($url)
@@ -74,10 +79,7 @@ class PrefixResolver implements ResolverInterface
             return str_replace($this->prefix, '', $path);
         }
 
-        // pop prefix dir:
-        $path = implode('/', array_slice(explode('/', $path), 2));
-
-        return $this->cdnUrl . '/' . $path;
+        return $this->cdnUrl . $path;
     }
 
 }

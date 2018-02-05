@@ -1,7 +1,7 @@
 {
   "name": "arsthanea/remote-media-bundle",
   "require": {
-    "kunstmaan/bundles-cms": "~3.5",
+    "kunstmaan/bundles-cms": "~4.0 | ~5.0",
     "aws/aws-sdk-php": "~3.7"
   },
   "autoload": {
