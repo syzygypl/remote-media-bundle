@@ -4,7 +4,7 @@ parameters:
     ars_thanea.remote_media.imagine.data_loader.chained_data_loader.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\DataLoader\ChainedDataLoader
     ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\PrefixResolver
     ars_thanea.remote_media.url_service.class: ArsThanea\RemoteMediaBundle\Service\UrlService
-    ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class: Liip\ImagineBundle\Imagine\Cache\Resolver\AwsS3Resolver
+    ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class: 'ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\AwsS3Resolver'
 
     liip_imagine.cache.manager.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
 
@@ -42,6 +42,7 @@ services:
         class: '%ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class%'
         calls:
             - [ "setObjectUrlOption", [ "https", true ] ]
+            - [ "setFilterSuffix", ['%remote_media.cdn.cache_prefix%'] ]
         arguments:
             - "@ars_thanea.remote_media.amazon_s3"
             - "%remote_media.cdn.s3.bucket%"
