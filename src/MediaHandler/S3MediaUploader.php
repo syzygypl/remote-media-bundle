@@ -1,36 +1,42 @@
 <?php
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
+
 
 use Aws\S3\S3Client;
 use Kunstmaan\MediaBundle\Entity\Media;
 
-class S3MediaUploader
+final class S3MediaUploader
 {
-    /**
-     * @var S3Client
-     */
+    private const REGION_DEFAULT = 'eu-west-1';
+    private const REGION_FORMAT = 's3-%s';
+    private const AMAZON_URL_FORMAT = 'https://%s.%s.amazonaws.com';
+
+    /** @var S3Client */
     private $storage;
 
+    /** @var string */
     private $bucketName;
 
+    /** @var string */
     private $region;
 
-    public function __construct(S3Client $storage, $bucketName, $region = 'eu-west-1')
+    public function __construct(S3Client $storage, string $bucketName, string $region = self::REGION_DEFAULT)
     {
         $this->storage = $storage;
         $this->bucketName = $bucketName;
-        $this->region = "s3-$region";
+        $this->region = \sprintf(self::REGION_FORMAT, $region);
     }
 
-    public function getUploadsUrl()
+    public function getUploadsUrl(): string
     {
-        return sprintf('https://%s.%s.amazonaws.com', $this->bucketName, $this->region);
+        return \sprintf(self::AMAZON_URL_FORMAT, $this->bucketName, $this->region);
     }
 
     public function uploadMedia(Media $media, $acl = 'public-read')
     {
-        $targetPath = parse_url($media->getUrl(), PHP_URL_PATH);
+        $targetPath = \parse_url($media->getUrl(), PHP_URL_PATH);
 
         if ($media->getUrl() === $targetPath) {
             throw new \InvalidArgumentException('Media has to have a public URL set before uploading');
@@ -40,25 +46,28 @@ class S3MediaUploader
             throw new \RuntimeException('Dunno how to get file contents');
         }
 
-        $fd = fopen($media->getContent()->getRealPath(), 'rb');
+        $fd = \fopen($media->getContent()->getRealPath(), 'rb');
         $storageResponse = $this->storage->putObject([
             'ACL'           => $acl,
             'Bucket'        => $this->bucketName,
-            'Key'           => ltrim($targetPath, '/'),
+            'Key'           => \ltrim($targetPath, '/'),
             'Body'          => $fd,
             'ContentType'   => $media->getContentType(),
-            'ContentLength' => filesize($media->getContent()->getRealPath()),
+            'ContentLength' => \filesize($media->getContent()->getRealPath()),
             'CacheControl'  => 'public, max-age=283824000',
-            'Expires'       => gmdate('D, d M Y H:i:s T', strtotime('+9 years')),
+            'Expires'       => \gmdate('D, d M Y H:i:s T', \strtotime('+9 years')),
         ]);
 
-        fclose($fd);
+        \fclose($fd);
 
         return $storageResponse->get('ObjectURL');
     }
 
-    public function exists(Media $media)
+    public function exists(Media $media): bool
     {
-        return $this->storage->doesObjectExist($this->bucketName, ltrim(parse_url($media->getUrl(), PHP_URL_PATH), '/'));
+        $parsedUrl = \parse_url($media->getUrl(), PHP_URL_PATH);
+        $mediaUrl = \ltrim($parsedUrl, '/');
+
+        return $this->storage->doesObjectExist($this->bucketName, $mediaUrl);
     }
 }

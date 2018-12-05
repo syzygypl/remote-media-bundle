@@ -1,6 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\DependencyInjection\CompilerPass;
+
 
 use ArsThanea\RemoteMediaBundle\MediaHandler\RemoteFileHandler;
 use ArsThanea\RemoteMediaBundle\MediaHandler\RemoteImageHandler;
@@ -8,9 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
-class RemoteFileHandlerCompilerPass implements CompilerPassInterface
+final class RemoteFileHandlerCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $container->getDefinition('kunstmaan_media.media_handlers.file')
             ->setClass(RemoteFileHandler::class)
@@ -20,7 +22,6 @@ class RemoteFileHandlerCompilerPass implements CompilerPassInterface
         $container->getDefinition('kunstmaan_media.media_handlers.image')
             ->setClass(RemoteImageHandler::class)
             ->addArgument(new Reference('ars_thanea.remote_media.media_handler.uploader'))
-            ->addArgument(new Reference('kunstmaan_utilities.slugifier'))
-        ;
+            ->addArgument(new Reference('kunstmaan_utilities.slugifier'));
     }
 }

@@ -1,45 +1,42 @@
 <?php
-
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver;
 
 
-use Aws\S3\S3Client;
+use Liip\ImagineBundle\Imagine\Cache\Resolver\AwsS3Resolver as OriginalResolver;
 
-class AwsS3Resolver extends \Liip\ImagineBundle\Imagine\Cache\Resolver\AwsS3Resolver
+final class AwsS3Resolver extends OriginalResolver
 {
+    /** @var string */
     private $filterSuffix;
 
-    /**
-     * @param string $filterSuffix
-     *
-     * @return $this
-     */
-    public function setFilterSuffix($filterSuffix)
+    public function setFilterSuffix(string $filterSuffix): self
     {
         $this->filterSuffix = $filterSuffix;
 
         return $this;
     }
 
-    public function remove(array $paths, array $filters)
+    public function remove(array $paths, array $filters): void
     {
-        if (!empty($paths)) {
-            return parent::remove($paths, $filters);
-        }
+        if (false === empty($paths)) {
+            parent::remove($paths, $filters);
 
+            return;
+        }
 
         try {
             foreach ($filters as $filter) {
-                $this->storage->deleteMatchingObjects($this->bucket, sprintf("%s/%s", $filter, $this->filterSuffix));
+                $filterPattern = \sprintf('%s/%s', $filter, $this->filterSuffix);
+                $this->storage->deleteMatchingObjects($this->bucket, $filterPattern);
             }
         } catch (\Exception $e) {
-            $this->logError('The objects could not be deleted from Amazon S3.', array(
-                'filter' => implode(', ', $filters),
+            $this->logError('The objects could not be deleted from Amazon S3.', [
+                'filter' => \implode(', ', $filters),
                 'bucket' => $this->bucket,
                 'exception' => $e,
-            ));
+            ]);
         }
     }
-
 }

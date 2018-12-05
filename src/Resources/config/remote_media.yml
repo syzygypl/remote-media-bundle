@@ -3,7 +3,6 @@ parameters:
     ars_thanea.remote_media.imagine.cache.resolver.redis_cache.class: Liip\ImagineBundle\Imagine\Cache\Resolver\CacheResolver
     ars_thanea.remote_media.imagine.data_loader.chained_data_loader.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\DataLoader\ChainedDataLoader
     ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\PrefixResolver
-    ars_thanea.remote_media.url_service.class: ArsThanea\RemoteMediaBundle\Service\UrlService
     ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class: 'ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\AwsS3Resolver'
 
     liip_imagine.cache.manager.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
@@ -14,15 +13,15 @@ parameters:
 
 services:
 
+    ars_thanea_remote_media.media_url.builder:
+        class: ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrlBuilder
+        arguments: [ "%remote_media.cdn.media_url%" ]
+
     ars_thanea_remote_media.twig_extension.media_url_twig_extension:
         class: ArsThanea\RemoteMediaBundle\TwigExtension\MediaUrlTwigExtension
-        arguments: [ '@ars_thanea.remote_media.url_service' ]
+        arguments: [ '@ars_thanea_remote_media.media_url.builder' ]
         tags:
             - { name: twig.extension }
-
-    ars_thanea.remote_media.url_service:
-        class: '%ars_thanea.remote_media.url_service.class%'
-        arguments: [ "%remote_media.cdn.media_url%" ]
 
     ars_thanea.remote_media.amazon_s3:
         class: Aws\S3\S3Client

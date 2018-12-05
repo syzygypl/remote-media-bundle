@@ -1,32 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\TwigExtension;
 
-use ArsThanea\RemoteMediaBundle\Service\UrlServiceInterface;
 
-class MediaUrlTwigExtension extends \Twig_Extension
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrlBuilder;
+
+final class MediaUrlTwigExtension extends \Twig_Extension
 {
-    private $urlService;
+    /** @var MediaUrlBuilder */
+    private $mediaUrlBuilder;
 
-    /**
-     * @param $urlService
-     */
-    public function __construct(UrlServiceInterface $urlService)
+    public function __construct(MediaUrlBuilder $mediaUrlBuilder)
     {
-        $this->urlService = $urlService;
+        $this->mediaUrlBuilder = $mediaUrlBuilder;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
-            'media_url' => new \Twig_SimpleFunction('media_url', [$this->urlService, 'getMediaUrl']),
+            'media_url' => new \Twig_SimpleFunction('media_url', [$this->mediaUrlBuilder, 'build']),
         ];
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'remote_media.media_url';
     }
-
-
 }

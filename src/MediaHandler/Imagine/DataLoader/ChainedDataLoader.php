@@ -1,18 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\DataLoader;
+
 
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class ChainedDataLoader implements LoaderInterface
+final class ChainedDataLoader implements LoaderInterface
 {
-    /**
-     * @var LoaderInterface[]
-     */
+    /** @var LoaderInterface[] */
     private $loaders;
 
-    public function addLoader(LoaderInterface $loader)
+    public function addLoader(LoaderInterface $loader): void
     {
         $this->loaders[] = $loader;
     }
@@ -21,8 +21,8 @@ class ChainedDataLoader implements LoaderInterface
     {
         $exception = null;
 
-        if (false !== strpos($path, " ")) {
-            $path = urlencode($path);
+        if (false !== \strpos($path, ' ')) {
+            $path = \urlencode($path);
         }
 
         foreach ($this->loaders as $loader) {

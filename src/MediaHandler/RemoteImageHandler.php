@@ -1,6 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
+
 
 use Kunstmaan\MediaBundle\Entity\Media;
 use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
@@ -10,10 +12,8 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class RemoteImageHandler extends RemoteFileHandler
 {
-    /**
-     * @var string
-     */
-    protected $aviaryApiKey;
+    /** @var string */
+    private $aviaryApiKey;
 
     public function __construct(
         $priority,
@@ -27,26 +27,17 @@ class RemoteImageHandler extends RemoteFileHandler
         $this->aviaryApiKey = $aviaryApiKey;
     }
 
-    /**
-     * @return string
-     */
-    public function getAviaryApiKey()
+    public function getAviaryApiKey(): string
     {
         return $this->aviaryApiKey;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'Image Handler';
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return 'image';
     }
@@ -56,19 +47,23 @@ class RemoteImageHandler extends RemoteFileHandler
      *
      * @return bool
      */
-    public function canHandle($object)
+    public function canHandle($object): bool
     {
-        if (parent::canHandle($object) && ($object instanceof File || strpos($object->getContentType(), 'image') === 0)) {
+        if (false === parent::canHandle($object)) {
+            return false;
+        }
+
+        if ($object instanceof File) {
             return true;
         }
 
-        return false;
+        return 0 === \strpos($object->getContentType(), 'image');
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getShowTemplate(Media $media)
+    public function getShowTemplate(Media $media): string
     {
         return 'KunstmaanMediaBundle:Media\Image:show.html.twig';
     }
@@ -79,26 +74,21 @@ class RemoteImageHandler extends RemoteFileHandler
      *
      * @return string
      */
-    public function getImageUrl(Media $media, $basepath)
+    public function getImageUrl(Media $media, $basepath): string
     {
-        if ($media->getUrl() === parse_url($media->getUrl(), PHP_URL_PATH)) {
+        if ($media->getUrl() === \parse_url($media->getUrl(), PHP_URL_PATH)) {
             return $basepath . $media->getUrl();
         }
 
         return $media->getUrl();
     }
 
-    /**
-     * @param Media $media
-     */
-    public function prepareMedia(Media $media)
+    public function prepareMedia(Media $media): void
     {
         parent::prepareMedia($media);
 
         if ($media->getContent()) {
-            $imageInfo = getimagesize($media->getContent());
-            $width = $imageInfo[0];
-            $height = $imageInfo[1];
+            [$width, $height] = \getimagesize($media->getContent());
 
             $media
                 ->setMetadataValue('original_width', $width)
