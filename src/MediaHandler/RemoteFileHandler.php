@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
 
 
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrl;
 use Kunstmaan\MediaBundle\Entity\Media;
 use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
 use Kunstmaan\MediaBundle\Helper\File\FileHandler;
@@ -33,7 +34,7 @@ class RemoteFileHandler extends FileHandler
 
     public function prepareMedia(Media $media): void
     {
-        $url = $media->getUrl();
+        $url = new MediaUrl($media->getUrl());
         $media->setUuid(uniqid());
 
         parent::prepareMedia($media);
@@ -41,16 +42,18 @@ class RemoteFileHandler extends FileHandler
         if ($media->getContent() instanceof File) {
             // if media already has it’s local path ($url) then i don’t want parent to overwrite it
 
-            if ($url && $url === \parse_url($url, PHP_URL_PATH) && '.' !== $url[\strlen($url) - 1]) {
-                $media->setUrl($url);
+            $url->parseToPath();
+
+            if ($url->isOriginal() && false === $url->isEndedWithDot()) {
+                $media->setUrl($url->value());
             }
 
             $dirname = \dirname($media->getUrl());
             $ext = \pathinfo($media->getUrl(), PATHINFO_EXTENSION);
             $filename = $this->slugifier->slugify(\basename($media->getUrl(), $ext)) . ($ext ? ".$ext" : '');
-            $url = \implode('/', [$dirname, $filename]);
+            $customUrl = \implode('/', [$dirname, $filename]);
 
-            $media->setUrl($this->uploader->getUploadsUrl() . $url);
+            $media->setUrl($this->uploader->getUploadsUrl() . $customUrl);
         }
     }
 

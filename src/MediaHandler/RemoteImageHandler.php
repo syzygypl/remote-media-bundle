@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
 
 
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrl;
 use Kunstmaan\MediaBundle\Entity\Media;
 use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
 use Kunstmaan\MediaBundle\Helper\MimeTypeGuesserFactoryInterface;
@@ -76,11 +77,17 @@ class RemoteImageHandler extends RemoteFileHandler
      */
     public function getImageUrl(Media $media, $basepath): string
     {
-        if ($media->getUrl() === \parse_url($media->getUrl(), PHP_URL_PATH)) {
-            return $basepath . $media->getUrl();
+        $url = new MediaUrl($media->getUrl());
+        $url->parseToPath();
+
+        if ($url->isOriginal())
+        {
+            $url->withPrefix($basepath);
+
+            return $url->value();
         }
 
-        return $media->getUrl();
+        return $url->original();
     }
 
     public function prepareMedia(Media $media): void

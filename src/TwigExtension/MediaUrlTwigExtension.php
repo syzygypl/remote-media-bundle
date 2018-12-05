@@ -19,12 +19,19 @@ final class MediaUrlTwigExtension extends \Twig_Extension
     public function getFunctions(): array
     {
         return [
-            'media_url' => new \Twig_SimpleFunction('media_url', [$this->mediaUrlBuilder, 'build']),
+            'media_url' => new \Twig_SimpleFunction('media_url', [$this, 'buildMediaUrl']),
         ];
     }
 
     public function getName(): string
     {
         return 'remote_media.media_url';
+    }
+
+    public function buildMediaUrl($value): string
+    {
+        $mediaUrl = $this->mediaUrlBuilder->build($value);
+
+        return $mediaUrl->value();
     }
 }

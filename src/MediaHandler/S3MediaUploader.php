@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
 
 
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrl;
 use Aws\S3\S3Client;
 use Kunstmaan\MediaBundle\Entity\Media;
 
@@ -36,9 +37,10 @@ final class S3MediaUploader
 
     public function uploadMedia(Media $media, $acl = 'public-read')
     {
-        $targetPath = \parse_url($media->getUrl(), PHP_URL_PATH);
+        $url = new MediaUrl($media->getUrl());
+        $url->parseToPath();
 
-        if ($media->getUrl() === $targetPath) {
+        if ($url->isOriginal()) {
             throw new \InvalidArgumentException('Media has to have a public URL set before uploading');
         }
 
@@ -46,11 +48,12 @@ final class S3MediaUploader
             throw new \RuntimeException('Dunno how to get file contents');
         }
 
+        $url->trim();
         $fd = \fopen($media->getContent()->getRealPath(), 'rb');
         $storageResponse = $this->storage->putObject([
             'ACL'           => $acl,
             'Bucket'        => $this->bucketName,
-            'Key'           => \ltrim($targetPath, '/'),
+            'Key'           => $url->value(),
             'Body'          => $fd,
             'ContentType'   => $media->getContentType(),
             'ContentLength' => \filesize($media->getContent()->getRealPath()),
@@ -65,9 +68,10 @@ final class S3MediaUploader
 
     public function exists(Media $media): bool
     {
-        $parsedUrl = \parse_url($media->getUrl(), PHP_URL_PATH);
-        $mediaUrl = \ltrim($parsedUrl, '/');
+        $url = new MediaUrl($media->getUrl());
+        $url->parseToPath();
+        $url->trim();
 
-        return $this->storage->doesObjectExist($this->bucketName, $mediaUrl);
+        return $this->storage->doesObjectExist($this->bucketName, $url->value());
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver;
 
 
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrl;
 use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Imagine\Cache\Resolver\ResolverInterface;
 
@@ -58,21 +59,26 @@ final class PrefixResolver implements ResolverInterface
 
     private function rewritePath(string $path): string
     {
-        $path = \parse_url($path, PHP_URL_PATH);
-        $path = \ltrim($path, '/');
+        $url = new MediaUrl($path);
+        $url->parseToPath();
+        $url->trim();
+        $url->withPrefix($this->prefix);
 
-        return $this->prefix . $path;
+        return $url->value();
     }
 
-    private function rewriteUrl(string $url): string
+    private function rewriteUrl(string $baseUrl): string
     {
-        $path = \parse_url($url, PHP_URL_PATH);
+        $url = new MediaUrl($baseUrl);
+        $url->parseToPath();
 
-        if ($path === $url) {
-            return \str_replace($this->prefix, '', $path);
+        if ($url->isOriginal()) {
+            return \str_replace($this->prefix, '', $url->value());
         }
 
-        return $this->cdnUrl . $path;
+        $url->withPrefix($this->cdnUrl);
+
+        return $url->value();
     }
 
 }

@@ -20,16 +20,18 @@ final class MediaUrlBuilder
         $this->cdnUrl = $cdnUrl;
     }
 
-    public function build(string $baseUrl): string
+    public function build(string $baseUrl): MediaUrl
     {
-        $trimmedUrl = \trim($baseUrl, '/');
+        $url = new MediaUrl($baseUrl);
+        $url->trim();
 
-        if (empty($trimmedUrl)) {
-            return '';
+        if ($url->isEmpty()) {
+            return $url;
         }
 
-        $path = \parse_url($baseUrl, PHP_URL_PATH);
+        $url->parseToPath();
+        $url->withPrefix($this->cdnUrl);
 
-        return $this->cdnUrl . $path;
+        return $url;
     }
 }
