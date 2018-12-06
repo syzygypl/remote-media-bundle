@@ -13,13 +13,9 @@ parameters:
 
 services:
 
-    ars_thanea_remote_media.media_url.builder:
-        class: ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrlBuilder
-        arguments: [ "%remote_media.cdn.media_url%" ]
-
     ars_thanea_remote_media.twig_extension.media_url_twig_extension:
         class: ArsThanea\RemoteMediaBundle\TwigExtension\MediaUrlTwigExtension
-        arguments: [ '@ars_thanea_remote_media.media_url.builder' ]
+        arguments: [ "%remote_media.cdn.media_url%" ]
         tags:
             - { name: twig.extension }
 

@@ -4,16 +4,16 @@ declare(strict_types=1);
 namespace ArsThanea\RemoteMediaBundle\TwigExtension;
 
 
-use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrlBuilder;
+use ArsThanea\RemoteMediaBundle\MediaUrl\MediaUrl;
 
 final class MediaUrlTwigExtension extends \Twig_Extension
 {
-    /** @var MediaUrlBuilder */
-    private $mediaUrlBuilder;
+    /** @var string */
+    private $cdnUrl;
 
-    public function __construct(MediaUrlBuilder $mediaUrlBuilder)
+    public function __construct(string $cdnUrl)
     {
-        $this->mediaUrlBuilder = $mediaUrlBuilder;
+        $this->cdnUrl = $cdnUrl;
     }
 
     public function getFunctions(): array
@@ -28,10 +28,18 @@ final class MediaUrlTwigExtension extends \Twig_Extension
         return 'remote_media.media_url';
     }
 
-    public function buildMediaUrl($value): string
+    public function buildMediaUrl($baseUrl): string
     {
-        $mediaUrl = $this->mediaUrlBuilder->build($value);
+        $url = new MediaUrl($baseUrl);
+        $url->trim();
 
-        return $mediaUrl->value();
+        if ($url->isEmpty()) {
+            return $url->value();
+        }
+
+        $url->parseToPath();
+        $url->addPrefix($this->cdnUrl);
+
+        return $url->value();
     }
 }
