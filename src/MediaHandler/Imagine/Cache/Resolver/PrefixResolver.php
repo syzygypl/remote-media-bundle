@@ -62,7 +62,7 @@ final class PrefixResolver implements ResolverInterface
         $url = new MediaUrl($path);
         $url->parseToPath();
         $url->trim();
-        $url->withPrefix($this->prefix);
+        $url->addPrefix($this->prefix);
 
         return $url->value();
     }
@@ -76,7 +76,7 @@ final class PrefixResolver implements ResolverInterface
             return \str_replace($this->prefix, '', $url->value());
         }
 
-        $url->withPrefix($this->cdnUrl);
+        $url->addPrefix($this->cdnUrl);
 
         return $url->value();
     }

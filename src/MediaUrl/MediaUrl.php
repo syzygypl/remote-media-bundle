@@ -62,7 +62,7 @@ final class MediaUrl
         $this->url = (string)$parsed;
     }
 
-    public function withPrefix(string $prefix): void
+    public function addPrefix(string $prefix): void
     {
         $this->url = $prefix . $this->url;
     }

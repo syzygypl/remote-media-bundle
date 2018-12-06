@@ -30,7 +30,7 @@ final class MediaUrlBuilder
         }
 
         $url->parseToPath();
-        $url->withPrefix($this->cdnUrl);
+        $url->addPrefix($this->cdnUrl);
 
         return $url;
     }

@@ -71,18 +71,17 @@ class RemoteImageHandler extends RemoteFileHandler
 
     /**
      * @param Media  $media    The media entity
-     * @param string $basepath The base path
+     * @param string $basePath The base path
      *
      * @return string
      */
-    public function getImageUrl(Media $media, $basepath): string
+    public function getImageUrl(Media $media, $basePath): string
     {
         $url = new MediaUrl($media->getUrl());
         $url->parseToPath();
 
-        if ($url->isOriginal())
-        {
-            $url->withPrefix($basepath);
+        if ($url->isOriginal()) {
+            $url->addPrefix($basePath);
 
             return $url->value();
         }
