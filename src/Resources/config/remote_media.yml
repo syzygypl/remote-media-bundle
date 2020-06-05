@@ -6,12 +6,6 @@ parameters:
     ars_thanea.remote_media.url_service.class: ArsThanea\RemoteMediaBundle\Service\UrlService
     ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class: 'ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\Resolver\AwsS3Resolver'
 
-    liip_imagine.cache.manager.class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
-
-    # override media bundle:
-    liip_imagine.cache.resolver.web_path.class: Liip\ImagineBundle\Imagine\Cache\Resolver\WebPathResolver
-    liip_imagine.controller.class: Liip\ImagineBundle\Controller\ImagineController
-
 services:
 
     ars_thanea_remote_media.twig_extension.media_url_twig_extension:
@@ -41,7 +35,8 @@ services:
         public: false
         class: '%ars_thanea.remote_media.imagine.cache.resolver.amazon_s3.class%'
         calls:
-            - [ "setObjectUrlOption", [ "https", true ] ]
+            - [ "setGetOption", [ "https", true ] ]
+            - [ "setPutOption", [ "https", true ] ]
             - [ "setFilterSuffix", ['%remote_media.cdn.cache_prefix%'] ]
         arguments:
             - "@ars_thanea.remote_media.amazon_s3"
@@ -59,12 +54,12 @@ services:
             - { name: 'liip_imagine.cache.resolver', resolver: 'remote_media' }
 
     ars_thanea.remote_media.imagine.data.loader.stream.s3:
-        class: "%liip_imagine.binary.loader.stream.class%"
+        class: Liip\ImagineBundle\Binary\Loader\StreamLoader
         arguments:
             - "https://s3-%remote_media.cdn.s3.region%.amazonaws.com/%remote_media.cdn.s3.bucket%/"
 
     ars_thanea.remote_media.imagine.data.loader.stream.cdn:
-        class: "%liip_imagine.binary.loader.stream.class%"
+        class: Liip\ImagineBundle\Binary\Loader\StreamLoader
         arguments:
             - "%remote_media.cdn.media_url%/"
 
@@ -82,3 +77,12 @@ services:
           - '@ars_thanea.remote_media.amazon_s3'
           - "%remote_media.cdn.s3.bucket%"
           - "%remote_media.cdn.s3.region%"
+
+    liip_imagine.cache.manager:
+        class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
+        arguments:
+            - "@liip_imagine.filter.configuration"
+            - "@router"
+            - "@liip_imagine.cache.signer"
+            - "@event_dispatcher"
+            - '%liip_imagine.cache.resolver.default%'
