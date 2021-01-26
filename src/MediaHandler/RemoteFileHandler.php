@@ -9,10 +9,10 @@ use Kunstmaan\MediaBundle\Helper\File\FileHandler;
 use Kunstmaan\MediaBundle\Helper\MimeTypeGuesserFactoryInterface;
 use Kunstmaan\UtilitiesBundle\Helper\SlugifierInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Mime\MimeTypesInterface;
 
 class RemoteFileHandler extends FileHandler
 {
-
     /**
      * @var S3MediaUploader
      */
@@ -23,18 +23,27 @@ class RemoteFileHandler extends FileHandler
      */
     private $slugifier;
 
+    /**
+     * RemoteFileHandler constructor.
+     * @param $priority
+     * @param $mimeTypeGuesserFactory
+     * @param S3MediaUploader $uploader
+     * @param SlugifierInterface $slugifier
+     */
     public function __construct(
         $priority,
-        MimeTypeGuesserFactoryInterface $mimeTypeGuesserFactory,
-        ExtensionGuesserFactoryInterface $extensionGuesserFactory,
+        $mimeTypeGuesserFactory,
         S3MediaUploader $uploader,
         SlugifierInterface $slugifier
     ) {
-        parent::__construct($priority, $mimeTypeGuesserFactory, $extensionGuesserFactory);
+        parent::__construct($priority, $mimeTypeGuesserFactory);
         $this->uploader = $uploader;
         $this->slugifier = $slugifier;
     }
 
+    /**
+     * @param Media $media
+     */
     public function prepareMedia(Media $media)
     {
         $url = $media->getUrl();
@@ -53,16 +62,17 @@ class RemoteFileHandler extends FileHandler
             $filename = $this->slugifier->slugify(basename($media->getUrl(), $ext)) . ($ext ? ".$ext" : "");
             $url = implode('/', [$dirname, $filename]);
             $this->setMediaUrl($media, $url);
-
         }
-
     }
 
+    /**
+     * @param Media $media
+     * @return string
+     */
     public function getShowTemplate(Media $media)
     {
         return 'RemoteMediaBundle:Media\File:show.html.twig';
     }
-
 
     /**
      * @param Media  $media
@@ -86,5 +96,4 @@ class RemoteFileHandler extends FileHandler
 
         $this->uploader->uploadMedia($media);
     }
-
 }

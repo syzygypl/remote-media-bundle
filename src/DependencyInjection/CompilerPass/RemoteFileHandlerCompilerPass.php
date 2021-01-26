@@ -20,7 +20,6 @@ class RemoteFileHandlerCompilerPass implements CompilerPassInterface
         $container->getDefinition('kunstmaan_media.media_handlers.image')
             ->setClass(RemoteImageHandler::class)
             ->addArgument(new Reference('ars_thanea.remote_media.media_handler.uploader'))
-            ->addArgument(new Reference('kunstmaan_utilities.slugifier'))
-        ;
+            ->addArgument(new Reference('kunstmaan_utilities.slugifier'));
     }
 }
