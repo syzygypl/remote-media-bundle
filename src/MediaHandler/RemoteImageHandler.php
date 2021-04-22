@@ -7,6 +7,7 @@ use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
 use Kunstmaan\MediaBundle\Helper\MimeTypeGuesserFactoryInterface;
 use Kunstmaan\UtilitiesBundle\Helper\SlugifierInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Mime\MimeTypesInterface;
 
 class RemoteImageHandler extends RemoteFileHandler
 {
@@ -15,15 +16,24 @@ class RemoteImageHandler extends RemoteFileHandler
      */
     protected $aviaryApiKey;
 
+    /**
+     * RemoteImageHandler constructor.
+     * @param $priority
+     * @param $mimeTypeGuesserFactory
+     * @param $extensionGuesserFactory
+     * @param $aviaryApiKey
+     * @param S3MediaUploader $uploader
+     * @param SlugifierInterface $slugifier
+     */
     public function __construct(
         $priority,
-        MimeTypeGuesserFactoryInterface $mimeTypeGuesserFactory,
-        ExtensionGuesserFactoryInterface $extensionGuesserFactory,
+        $mimeTypeGuesserFactory,
+        $extensionGuesserFactory,
         $aviaryApiKey,
         S3MediaUploader $uploader,
         SlugifierInterface $slugifier
     ) {
-        parent::__construct($priority, $mimeTypeGuesserFactory, $extensionGuesserFactory, $uploader, $slugifier);
+        parent::__construct($priority, $mimeTypeGuesserFactory, $uploader, $slugifier);
         $this->aviaryApiKey = $aviaryApiKey;
     }
 
@@ -70,7 +80,7 @@ class RemoteImageHandler extends RemoteFileHandler
      */
     public function getShowTemplate(Media $media)
     {
-        return 'KunstmaanMediaBundle:Media\Image:show.html.twig';
+        return '@KunstmaanMedia/Media\Image/show.html.twig';
     }
 
     /**
