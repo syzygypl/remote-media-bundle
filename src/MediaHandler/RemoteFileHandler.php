@@ -71,7 +71,7 @@ class RemoteFileHandler extends FileHandler
      */
     public function getShowTemplate(Media $media)
     {
-        return 'RemoteMediaBundle:Media\File:show.html.twig';
+        return '@KunstmaanMedia/Media\Image/show.html.twig';
     }
 
     /**
