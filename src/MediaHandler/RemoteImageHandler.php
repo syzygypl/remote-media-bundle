@@ -4,9 +4,9 @@ namespace ArsThanea\RemoteMediaBundle\MediaHandler;
 
 use Kunstmaan\MediaBundle\Entity\Media;
 use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
-use Kunstmaan\MediaBundle\Helper\MimeTypeGuesserFactoryInterface;
 use Kunstmaan\UtilitiesBundle\Helper\SlugifierInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Mime\MimeTypesInterface;
 
 class RemoteImageHandler extends RemoteFileHandler
 {
@@ -17,13 +17,13 @@ class RemoteImageHandler extends RemoteFileHandler
 
     public function __construct(
         $priority,
-        MimeTypeGuesserFactoryInterface $mimeTypeGuesserFactory,
-        ExtensionGuesserFactoryInterface $extensionGuesserFactory,
+        MimeTypesInterface $mimeTypeGuesserFactory,
+        ?ExtensionGuesserFactoryInterface $extensionGuesserFactory,
         $aviaryApiKey,
         S3MediaUploader $uploader,
         SlugifierInterface $slugifier
     ) {
-        parent::__construct($priority, $mimeTypeGuesserFactory, $extensionGuesserFactory, $uploader, $slugifier);
+        parent::__construct($priority, $mimeTypeGuesserFactory, $uploader, $slugifier);
         $this->aviaryApiKey = $aviaryApiKey;
     }
 

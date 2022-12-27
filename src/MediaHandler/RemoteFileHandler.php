@@ -2,13 +2,11 @@
 
 namespace ArsThanea\RemoteMediaBundle\MediaHandler;
 
-use Aws\S3\S3Client;
 use Kunstmaan\MediaBundle\Entity\Media;
-use Kunstmaan\MediaBundle\Helper\ExtensionGuesserFactoryInterface;
 use Kunstmaan\MediaBundle\Helper\File\FileHandler;
-use Kunstmaan\MediaBundle\Helper\MimeTypeGuesserFactoryInterface;
 use Kunstmaan\UtilitiesBundle\Helper\SlugifierInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Mime\MimeTypesInterface;
 
 class RemoteFileHandler extends FileHandler
 {
@@ -25,12 +23,11 @@ class RemoteFileHandler extends FileHandler
 
     public function __construct(
         $priority,
-        MimeTypeGuesserFactoryInterface $mimeTypeGuesserFactory,
-        ExtensionGuesserFactoryInterface $extensionGuesserFactory,
+        MimeTypesInterface $mimeTypeGuesserFactory,
         S3MediaUploader $uploader,
         SlugifierInterface $slugifier
     ) {
-        parent::__construct($priority, $mimeTypeGuesserFactory, $extensionGuesserFactory);
+        parent::__construct($priority, $mimeTypeGuesserFactory);
         $this->uploader = $uploader;
         $this->slugifier = $slugifier;
     }
