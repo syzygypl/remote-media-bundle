@@ -21,8 +21,7 @@ services:
     ars_thanea.remote_media.amazon_s3:
         class: Aws\S3\S3Client
         public: false
-        factory_class: Aws\S3\S3Client
-        factory_method: factory
+        factory: [Aws\S3\S3Client, 'factory']
         arguments:
             -
                 credentials:
@@ -47,9 +46,9 @@ services:
         public: false
         class: "%ars_thanea.remote_media.imagine.cache_resolver.prefix_resolver.class%"
         arguments:
-          - '@ars_thanea.remote_media.imagine.cache.resolver.amazon_s3'
-          - "%remote_media.cdn.cache_prefix%"
-          - "%remote_media.cdn.media_url%"
+            - '@ars_thanea.remote_media.imagine.cache.resolver.amazon_s3'
+            - "%remote_media.cdn.cache_prefix%"
+            - "%remote_media.cdn.media_url%"
         tags:
             - { name: 'liip_imagine.cache.resolver', resolver: 'remote_media' }
 
@@ -74,9 +73,9 @@ services:
     ars_thanea.remote_media.media_handler.uploader:
         class: '%ars_thanea.remote_media.media_handler.uploader.class%'
         arguments:
-          - '@ars_thanea.remote_media.amazon_s3'
-          - "%remote_media.cdn.s3.bucket%"
-          - "%remote_media.cdn.s3.region%"
+            - '@ars_thanea.remote_media.amazon_s3'
+            - "%remote_media.cdn.s3.bucket%"
+            - "%remote_media.cdn.s3.region%"
 
     liip_imagine.cache.manager:
         class: ArsThanea\RemoteMediaBundle\MediaHandler\Imagine\Cache\CacheManager
